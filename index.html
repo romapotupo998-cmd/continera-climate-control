@@ -324,6 +324,14 @@ window.addEventListener("pagehide",saveSettings);
 
 render();
 </script>
- 
+
+ <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(error => console.error("SW:", error));
+  });
+}
+ </script>
 </body>
 </html>
