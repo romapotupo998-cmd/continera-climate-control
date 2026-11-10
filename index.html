@@ -158,13 +158,52 @@ button:disabled{opacity:.3}
  <div class="footer">CONTINERA • DAF XG+</div>
 </div>
 
+
 <script>
-const s={
- power:true,temp:21,fan:3,air:"middle",
- ac:false,auto:false,recirc:false,
- defrost:false,heater:false
+const STORAGE_KEY = "contineraClimateSettings";
+
+const defaults = {
+ power:true,
+ temp:21,
+ fan:3,
+ air:"middle",
+ ac:false,
+ auto:false,
+ recirc:false,
+ defrost:false,
+ heater:false
 };
-const $=id=>document.getElementById(id);
+
+function loadSettings(){
+ try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(!saved) return {...defaults};
+
+  const data = JSON.parse(saved);
+
+  return {
+   ...defaults,
+   ...data,
+   temp: Number.isFinite(data.temp) ? Math.min(30,Math.max(16,data.temp)) : defaults.temp,
+   fan: Number.isInteger(data.fan) ? Math.min(7,Math.max(0,data.fan)) : defaults.fan,
+   air: ["upper","middle","lower"].includes(data.air) ? data.air : defaults.air
+  };
+ } catch(error) {
+  return {...defaults};
+ }
+}
+
+const s = loadSettings();
+
+const $ = id => document.getElementById(id);
+
+function saveSettings(){
+ try {
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(s));
+ } catch(error) {
+  console.error("Не вдалося зберегти налаштування:",error);
+ }
+}
 
 function manual(){
  s.auto=false;
@@ -199,44 +238,78 @@ function render(){
  document.querySelectorAll(".panel button:not(#power)").forEach(b=>{
   b.disabled=!s.power;
  });
+
+ saveSettings();
 }
 
 $("plusTemp").onclick=()=>{
  if(s.temp<30){s.temp+=0.5;manual();render()}
 };
+
 $("minusTemp").onclick=()=>{
  if(s.temp>16){s.temp-=0.5;manual();render()}
 };
+
 $("fanUp").onclick=()=>{
- s.fan=Math.min(7,s.fan+1);manual();render()
+ s.fan=Math.min(7,s.fan+1);
+ manual();
+ render();
 };
+
 $("fanDown").onclick=()=>{
- s.fan=Math.max(0,s.fan-1);manual();render()
+ s.fan=Math.max(0,s.fan-1);
+ manual();
+ render();
 };
 
 document.querySelectorAll("[data-air]").forEach(b=>{
  b.onclick=()=>{
   s.air=b.dataset.air;
-  manual();render()
+  manual();
+  render();
  };
 });
 
-$("ac").onclick=()=>{s.ac=!s.ac;manual();render()};
-$("recirc").onclick=()=>{s.recirc=!s.recirc;manual();render()};
-$("heater").onclick=()=>{s.heater=!s.heater;manual();render()};
+$("ac").onclick=()=>{
+ s.ac=!s.ac;
+ manual();
+ render();
+};
+
+$("recirc").onclick=()=>{
+ s.recirc=!s.recirc;
+ manual();
+ render();
+};
+
+$("heater").onclick=()=>{
+ s.heater=!s.heater;
+ manual();
+ render();
+};
 
 $("defrost").onclick=()=>{
  s.defrost=!s.defrost;
+
  if(s.defrost){
-  s.fan=7;s.air="upper";s.recirc=false;s.auto=false;
+  s.fan=7;
+  s.air="upper";
+  s.recirc=false;
+  s.auto=false;
  }
+
  render();
 };
 
 $("auto").onclick=()=>{
  s.auto=!s.auto;
  s.defrost=false;
- if(s.auto){s.fan=3;s.air="middle"}
+
+ if(s.auto){
+  s.fan=3;
+  s.air="middle";
+ }
+
  render();
 };
 
@@ -245,7 +318,11 @@ $("power").onclick=()=>{
  render();
 };
 
+// Зберігаємо налаштування перед закриттям сторінки
+window.addEventListener("pagehide",saveSettings);
+
 render();
 </script>
+ 
 </body>
 </html>
