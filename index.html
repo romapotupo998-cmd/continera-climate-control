@@ -1,0 +1,498 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101214">
+<title>Continera Climate Control</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #080a0c;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.panel {
+    width: 100%;
+    max-width: 430px;
+    background: linear-gradient(145deg,#292d30,#111416);
+    border: 2px solid #41464a;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 15px 45px #000;
+}
+
+.brand {
+    text-align: center;
+    color: #aeb5ba;
+    letter-spacing: 4px;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+h2 {
+    text-align: center;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0 0 20px;
+    color: #fff;
+}
+
+.display {
+    background: #080d0e;
+    border: 2px solid #333b3e;
+    border-radius: 12px;
+    padding: 17px;
+    box-shadow: inset 0 0 15px #000;
+    margin-bottom: 20px;
+}
+
+.display-top {
+    display: flex;
+    justify-content: space-between;
+    color: #7f9b9a;
+    font-size: 11px;
+    margin-bottom: 13px;
+}
+
+.temperature {
+    text-align: center;
+    font-size: 48px;
+    color: #b9e8dc;
+    font-weight: 300;
+    text-shadow: 0 0 12px #5dbca2;
+}
+
+.status {
+    text-align: center;
+    font-size: 11px;
+    color: #9bb7ae;
+    margin-top: 7px;
+}
+
+.section-title {
+    font-size: 11px;
+    color: #929a9e;
+    letter-spacing: 2px;
+    margin: 20px 0 10px;
+}
+
+.temp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+button {
+    border: 1px solid #50575b;
+    background: linear-gradient(#343a3e,#1b2023);
+    color: #eee;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 17px;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+button:active {
+    background: #4b5559;
+    transform: scale(.97);
+}
+
+.temp-controls button {
+    width: 65px;
+    font-size: 25px;
+}
+
+.temp-value {
+    font-size: 25px;
+    min-width: 65px;
+    text-align: center;
+}
+
+.fan-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.fan-button {
+    width: 50px;
+    font-size: 22px;
+}
+
+.fan-level {
+    flex: 1;
+    display: flex;
+    gap: 5px;
+}
+
+.fan-level button {
+    flex: 1;
+    min-width: 0;
+    min-height: 39px;
+    font-size: 12px;
+}
+
+.active {
+    background: linear-gradient(#438d80,#245c52) !important;
+    border-color: #72c6b3 !important;
+    color: white;
+    box-shadow: 0 0 9px #397f70;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 9px;
+}
+
+.control {
+    min-height: 70px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+}
+
+.control .symbol {
+    font-size: 23px;
+}
+
+.control small {
+    color: #aeb6b9;
+    font-size: 10px;
+}
+
+.bottom {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.bottom button {
+    min-height: 55px;
+    font-size: 12px;
+}
+
+.power {
+    width: 100%;
+    margin-top: 18px;
+    min-height: 52px;
+    border-radius: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.power.off {
+    background: #672c2c;
+    border-color: #a64a4a;
+}
+
+.footer {
+    text-align: center;
+    color: #656e72;
+    font-size: 10px;
+    margin-top: 18px;
+    letter-spacing: 2px;
+}
+
+button:disabled {
+    opacity: .35;
+    cursor: default;
+}
+
+@media(max-width:350px) {
+    .panel { padding: 13px; }
+    .control { min-height: 62px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+
+    <div class="brand">DAF</div>
+    <h2>CLIMATE CONTROL</h2>
+
+    <div class="display">
+        <div class="display-top">
+            <span id="modeText">MANUAL</span>
+            <span id="acStatus">A/C OFF</span>
+        </div>
+
+        <div class="temperature">
+            <span id="displayTemp">21.0</span>°
+        </div>
+
+        <div class="status" id="displayStatus">
+            SYSTEM READY
+        </div>
+    </div>
+
+    <div class="section-title">TEMPERATURE</div>
+
+    <div class="temp-controls">
+        <button id="tempDown">−</button>
+        <div class="temp-value">
+            <span id="tempValue">21</span>°C
+        </div>
+        <button id="tempUp">+</button>
+    </div>
+
+    <div class="section-title">FAN SPEED</div>
+
+    <div class="fan-area">
+        <button class="fan-button" id="fanDown">−</button>
+        <div class="fan-level" id="fanLevels"></div>
+        <button class="fan-button" id="fanUp">+</button>
+    </div>
+
+    <div class="section-title">AIR DISTRIBUTION</div>
+
+    <div class="grid">
+        <button class="control" data-air="face">
+            <span class="symbol">↗</span>
+            <small>ОБЛИЧЧЯ</small>
+        </button>
+
+        <button class="control" data-air="feet">
+            <span class="symbol">↓</span>
+            <small>НОГИ</small>
+        </button>
+
+        <button class="control" data-air="glass">
+            <span class="symbol">▱</span>
+            <small>СКЛО</small>
+        </button>
+
+        <button class="control" data-air="facefeet">
+            <span class="symbol">↕</span>
+            <small>ОБЛИЧЧЯ + НОГИ</small>
+        </button>
+
+        <button class="control" data-air="glassfeet">
+            <span class="symbol">↗↓</span>
+            <small>СКЛО + НОГИ</small>
+        </button>
+
+        <button class="control" data-air="all">
+            <span class="symbol">✣</span>
+            <small>УСІ НАПРЯМКИ</small>
+        </button>
+    </div>
+
+    <div class="section-title">ADDITIONAL CONTROLS</div>
+
+    <div class="bottom">
+        <button id="acButton">❄ A/C<br><small>ВИМКНЕНО</small></button>
+        <button id="recButton">♻ RECIRC<br><small>ВИМКНЕНО</small></button>
+        <button id="autoButton">AUTO<br><small>РУЧНИЙ РЕЖИМ</small></button>
+        <button id="maxButton">🪟 MAX DEFROST<br><small>ВИМКНЕНО</small></button>
+    </div>
+
+    <button class="power" id="powerButton">
+        ⏻ CLIMATE ON
+    </button>
+
+    <div class="footer">
+        CONTINERA • CLIMATE SYSTEM
+    </div>
+
+</div>
+
+<script>
+const state = {
+    power: true,
+    temperature: 21,
+    fan: 3,
+    air: "facefeet",
+    ac: false,
+    recirculation: false,
+    auto: false,
+    defrost: false
+};
+
+const $ = id => document.getElementById(id);
+
+const fanLevels = $("fanLevels");
+
+for (let i = 0; i <= 7; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.addEventListener("click", () => {
+        state.fan = i;
+        state.auto = false;
+        render();
+    });
+    fanLevels.appendChild(btn);
+}
+
+function render() {
+    $("displayTemp").textContent =
+        state.temperature.toFixed(1);
+
+    $("tempValue").textContent =
+        state.temperature.toFixed(1);
+
+    $("modeText").textContent =
+        state.auto ? "AUTO" : "MANUAL";
+
+    $("acStatus").textContent =
+        state.ac ? "A/C ON" : "A/C OFF";
+
+    $("displayStatus").textContent =
+        !state.power ? "SYSTEM OFF" :
+        state.auto ? "AUTOMATIC CLIMATE" :
+        state.defrost ? "MAX DEFROST" :
+        "SYSTEM READY";
+
+    [...fanLevels.children].forEach((btn, i) => {
+        btn.classList.toggle(
+            "active",
+            state.fan === i && state.power
+        );
+    });
+
+    document.querySelectorAll("[data-air]").forEach(btn => {
+        btn.classList.toggle(
+            "active",
+            btn.dataset.air === state.air && state.power
+        );
+    });
+
+    $("acButton").classList.toggle("active",state.ac && state.power);
+    $("recButton").classList.toggle("active",state.recirculation && state.power);
+    $("autoButton").classList.toggle("active",state.auto && state.power);
+    $("maxButton").classList.toggle("active",state.defrost && state.power);
+
+    $("acButton").innerHTML =
+        `❄ A/C<br><small>${state.ac ? "УВІМКНЕНО" : "ВИМКНЕНО"}</small>`;
+
+    $("recButton").innerHTML =
+        `♻ RECIRC<br><small>${state.recirculation ? "УВІМКНЕНО" : "ВИМКНЕНО"}</small>`;
+
+    $("autoButton").innerHTML =
+        `AUTO<br><small>${state.auto ? "АВТОРЕЖИМ" : "РУЧНИЙ РЕЖИМ"}</small>`;
+
+    $("maxButton").innerHTML =
+        `🪟 MAX DEFROST<br><small>${state.defrost ? "УВІМКНЕНО" : "ВИМКНЕНО"}</small>`;
+
+    $("powerButton").textContent =
+        state.power ? "⏻ CLIMATE ON" : "⏻ CLIMATE OFF";
+
+    $("powerButton").classList.toggle("off",!state.power);
+
+    document.querySelectorAll(".panel button:not(#powerButton)").forEach(btn => {
+        btn.disabled = !state.power;
+    });
+}
+
+function manualChange() {
+    state.auto = false;
+    state.defrost = false;
+}
+
+$("tempDown").onclick = () => {
+    if (state.temperature > 16) {
+        state.temperature -= 0.5;
+        manualChange();
+        render();
+    }
+};
+
+$("tempUp").onclick = () => {
+    if (state.temperature < 30) {
+        state.temperature += 0.5;
+        manualChange();
+        render();
+    }
+};
+
+$("fanDown").onclick = () => {
+    state.fan = Math.max(0,state.fan - 1);
+    manualChange();
+    render();
+};
+
+$("fanUp").onclick = () => {
+    state.fan = Math.min(7,state.fan + 1);
+    manualChange();
+    render();
+};
+
+document.querySelectorAll("[data-air]").forEach(btn => {
+    btn.onclick = () => {
+        state.air = btn.dataset.air;
+        manualChange();
+        render();
+    };
+});
+
+$("acButton").onclick = () => {
+    state.ac = !state.ac;
+    manualChange();
+    render();
+};
+
+$("recButton").onclick = () => {
+    state.recirculation = !state.recirculation;
+    manualChange();
+    render();
+};
+
+$("autoButton").onclick = () => {
+    state.auto = !state.auto;
+    state.defrost = false;
+
+    if (state.auto) {
+        state.fan = 3;
+        state.air = "facefeet";
+    }
+
+    render();
+};
+
+$("maxButton").onclick = () => {
+    state.defrost = !state.defrost;
+
+    if (state.defrost) {
+        state.auto = false;
+        state.fan = 7;
+        state.ac = true;
+        state.air = "glass";
+        state.recirculation = false;
+    }
+
+    render();
+};
+
+$("powerButton").onclick = () => {
+    state.power = !state.power;
+    render();
+};
+
+render();
+</script>
+
+</body>
+      </html>
+      
